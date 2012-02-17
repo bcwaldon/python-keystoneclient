@@ -69,8 +69,8 @@ def do_user_update(kc, args):
         return
 
     try:
-        user = kc.users.update(args.id, **kwargs)
-        utils.print_dict(user._info)
+        kc.users.update(args.id, **kwargs)
+        print 'User has been updated.'
     except Exception, e:
         print 'Unable to update user: %s' % e
 
