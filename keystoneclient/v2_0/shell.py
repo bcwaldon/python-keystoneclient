@@ -48,33 +48,31 @@ def do_user_create(kc, args):
     utils.print_dict(user._info)
 
 
-@utils.arg('id', metavar='<user_id>', nargs='?',
-           help='User ID to update.')
-@utils.arg('name', metavar='<name>', nargs='?',
-           help='New desired user name.')
-@utils.arg('email', metavar='<email>', nargs='?',
-           help='New desired email address.')
+@utils.arg('id', metavar='<user_id>', help='User ID to update.')
+@utils.arg('--name', metavar='<name>', nargs='?',
+           help='Desired user name.')
+@utils.arg('--email', metavar='<email>', nargs='?',
+           help='Desired email address.')
+@utils.arg('--enabled', metavar='<enabled>', nargs='?',
+           help='Desired status of tenant.')
 def do_user_update(kc, args):
-    user = kc.users.update(args.id, name=args.name, email=args.email)
-    utils.print_dict(user._info)
+    user = kc.users.get(args.id)
+    kwargs = {}
+    if args.name:
+        kwargs['name'] = args.name
+    if args.email:
+        kwargs['email'] = args.email
+    if args.enabled:
+        kwargs['enabled'] = utils.string_to_bool(args.enabled)
 
+    if not len(kwargs):
+        print "User not updated, no arguemnts present."
+        return
 
-@utils.arg('id', metavar='<user_id>', nargs='?', help='User ID to enable.')
-def do_user_enable(kc, args):
     try:
-        kc.users.update_enabled(args.id, True)
-        print 'User has been enabled.'
-    except:
-        'Unable to enable user.'
-
-
-@utils.arg('id', metavar='<user_id>', nargs='?', help='User ID to disable.')
-def do_user_disable(kc, args):
-    try:
-        kc.users.update_enabled(args.id, False)
-        print 'User has been disabled.'
-    except:
-        'Unable to disable user.'
+        user.update(**kwargs)
+    except Exception, e:
+        print 'Unable to update user: %s' % e
 
 
 @utils.arg('id', metavar='<user_id>', nargs='?', help='User ID to update.')
