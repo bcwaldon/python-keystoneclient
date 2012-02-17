@@ -56,7 +56,6 @@ def do_user_create(kc, args):
 @utils.arg('--enabled', metavar='<enabled>', nargs='?',
            help='Desired status of tenant.')
 def do_user_update(kc, args):
-    user = kc.users.get(args.id)
     kwargs = {}
     if args.name:
         kwargs['name'] = args.name
@@ -70,7 +69,7 @@ def do_user_update(kc, args):
         return
 
     try:
-        user.update(**kwargs)
+        kc.users.update(args.id, **kwargs)
     except Exception, e:
         print 'Unable to update user: %s' % e
 
