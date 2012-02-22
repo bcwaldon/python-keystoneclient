@@ -45,8 +45,8 @@ def _getpass():
 
 @utils.arg('--name', metavar='<user-name>', nargs='?',
            help='Desired username. (unique)')
-@utils.arg('--password', metavar='<password>', nargs='?',
-           help='Desired password.')
+@utils.arg('--pass', metavar='<password>', nargs='?',
+           help='Desired password.', dest='passwd')
 @utils.arg('--email', metavar='<email>', nargs='?',
            help='Desired email address. (unique)')
 @utils.arg('--tenant_id', metavar='<tenant-id>', nargs='?',
@@ -55,10 +55,10 @@ def _getpass():
            help='Enable user immediately (Optional, default True)')
 def do_user_create(kc, args):
     """Create user."""
-    if args.password is None:
-        args.password = _getpass()
+    if args.passwd is None:
+        args.passwd = _getpass()
 
-    user = kc.users.create(args.name, args.password, args.email,
+    user = kc.users.create(args.name, args.passwd, args.email,
                            tenant_id=args.tenant_id, enabled=args.enabled)
     utils.print_dict(user._info)
 
@@ -77,14 +77,14 @@ def do_user_update(kc, args):
     utils.print_dict(user._info)
 
 
-@utils.arg('--password', metavar='<password>', nargs='?',
-           help='New desired password.')
+@utils.arg('--pass', metavar='<password>', nargs='?',
+           help='New desired password.', dest='passwd')
 @utils.arg('id', metavar='<user_id>', help='User ID to update.')
 def do_user_password_update(kc, args):
     """Update user password."""
-    if args.password is None:
-        args.password = _getpass()
-    kc.users.update_password(args.id, args.password)
+    if args.passwd is None:
+        args.passwd = _getpass()
+    kc.users.update_password(args.id, args.passwd)
 
 
 @utils.arg('id', metavar='<user_id>', help='User ID to delete.')
