@@ -15,6 +15,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import getpass
+import sys
+
 from keystoneclient.v2_0 import client
 from keystoneclient import utils
 
@@ -29,10 +32,20 @@ def do_user_list(kc, args):
     utils.print_list(users, ['id', 'enabled', 'email', 'name', 'tenantId'])
 
 
+def _getpass():
+    """Securely prompt the user for a password"""
+    p1 = getpass.getpass('Enter new user password: ')
+    p2 = getpass.getpass('Retype new user password: ')
+    if p1 == p2:
+        return p1
+    else:
+        print 'Passwords do not match!'
+        sys.exit(1)
+
+
 @utils.arg('--name', metavar='<user-name>', nargs='?',
            help='Desired username. (unique)')
-@utils.arg('--pass', metavar='<pass>', nargs='?',
-           dest='passwd',
+@utils.arg('--password', metavar='<password>', nargs='?',
            help='Desired password.')
 @utils.arg('--email', metavar='<email>', nargs='?',
            help='Desired email address. (unique)')
@@ -42,18 +55,21 @@ def do_user_list(kc, args):
            help='Enable user immediately (Optional, default True)')
 def do_user_create(kc, args):
     """Create user."""
-    user = kc.users.create(args.name, args.passwd, args.email,
+    if args.password is None:
+        args.password = _getpass()
+
+    user = kc.users.create(args.name, args.password, args.email,
                            tenant_id=args.tenant_id, enabled=args.enabled)
     utils.print_dict(user._info)
 
 
-@utils.arg('id', metavar='<user_id>', help='User ID to update.')
 @utils.arg('--name', metavar='<user-name>', nargs='?',
            help='New desired user name.')
 @utils.arg('--email', metavar='<email>', nargs='?',
            help='New desired email address.')
 @utils.arg('--enabled', metavar='<email>', nargs='?', default=True,
            help='Enable (true) or Disable (false) user.')
+@utils.arg('id', metavar='<user_id>', help='User ID to update.')
 def do_user_update(kc, args):
     """Update user's name, email, and enabled status."""
     user = kc.users.update(args.id, name=args.name, email=args.email,
@@ -61,11 +77,13 @@ def do_user_update(kc, args):
     utils.print_dict(user._info)
 
 
+@utils.arg('--password', metavar='<password>', nargs='?',
+           help='New desired password.')
 @utils.arg('id', metavar='<user_id>', help='User ID to update.')
-@utils.arg('--password', metavar='<password>', help='New desired password.',
-                         required=True)
 def do_user_password_update(kc, args):
     """Update user password."""
+    if args.password is None:
+        args.password = _getpass()
     kc.users.update_password(args.id, args.password)
 
 
